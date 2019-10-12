@@ -57,10 +57,15 @@ public:
 
 
 void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado) {
-	Red.circle.center = {300, 200};
+	Red.circle.center = {250, 225};
 	Red.velocity = {0, 0};
 	Red.circle.r = 10;
 	Red.color = Palette::Red;
+	
+	Blue.circle.center = {550, 225};
+	Blue.velocity = {0, 0};
+	Blue.circle.r = 10;
+	Blue.color = Palette::Blue;
 
 
 	RedHado = BlueHado = 0;
@@ -89,6 +94,7 @@ void Main() {
 	init(Red, Blue, White, RedHado, BlueHado);
 	while (System::Update()) {
 		Red.Draw();
+		Blue.Draw();
 		Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
 		for (const Line& l : FieldTop) {
 			l.draw(5);
