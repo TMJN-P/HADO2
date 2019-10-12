@@ -76,28 +76,28 @@ void Main() {
 			l.draw(3);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.y = -Red.velocity.y;
-				Red.point.y += 1;
+				Red.center.y += 1;
 			}
 		}
 		for (const Line& l : FieldBottom) {
 			l.draw(3);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.y = -Red.velocity.y;
-				Red.point.y -= 1;
+				Red.center.y -= 1;
 			}
 		}
 		for (const Line& l : FieldLeft) {
 			l.draw(3);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.x = -Red.velocity.x;
-				Red.point.x += 1;
+				Red.center.x += 1;
 			}
 		}
 		for (const Line& l : FieldRight) {
 			l.draw(3);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.x = -Red.velocity.x;
-				Red.point.x -= 1;
+				Red.center.x -= 1;
 			}
 		}
 		Red.accelerate();
