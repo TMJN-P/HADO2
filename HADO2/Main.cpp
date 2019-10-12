@@ -4,33 +4,46 @@ class Ball {
 public:
 	Circle circle;
 	Color color;
-	Vec2 point;
+	Vec2 center;
 	Vec2 velocity;
 	void Draw() {
-		circle.center = point;
+		circle.center = center;
 		circle.draw(color);
 	}
 	void accelerate(Vec2 a) {
-		if (a.distanceFrom(point) < 5) {
-			velocity *= 0.9;
-		}
-		else {
-			Vec2 b;
-			b.x = cos(atan2(a.y - point.y, a.x - point.x)) * 0.6;
-			b.y = sin(atan2(a.y - point.y, a.x - point.x)) * 0.6;
-			velocity += b;
-		}
 	}
 	void move() {
-		point += velocity;
+		center += velocity;
 	}
 	void attenuate() {
 		velocity *= 0.95;
 	}
 };
 
-void init(Ball& Red, Ball& Blue, Ball& White, double& RedHado, double& BlueHado) {
-	Red.point = { 300,200 };
+class PlayerBall : public Ball {
+public:
+	void accelerate() {
+		if (center.distanceFrom(Cursor::Pos()) < 10) {
+			velocity *= 0.9;
+		}
+		else {
+			Vec2 b;
+			b.x = cos(atan2(Cursor::Pos().y - center.y, Cursor::Pos().x - center.x)) * 0.4;
+			b.y = sin(atan2(Cursor::Pos().y - center.y, Cursor::Pos().x - center.x)) * 0.4;
+			velocity += b;
+		}
+	}
+};
+
+class Hado {
+public:
+	Vec2 center;
+	double radius;
+};
+
+void init(PlayerBall& Red, Ball& Blue, Ball& White, double& RedHado, double& BlueHado) {
+	Red.center = {300, 200};
+	Red.velocity = {0, 0};
 	Red.circle.r = 10;
 	Red.color = Palette::Red;
 }
@@ -39,16 +52,55 @@ void Main() {
 	Scene::SetBackground(Palette::Black);
 	Graphics::SetTargetFrameRateHz(60);
 	const Font font(60);
-
-	const Polygon Field{
-		Vec2(100,50),Vec2(700,50),Vec2(700,175),Vec2(740,175),Vec2(740,275),Vec2(700,275),Vec2(700,400),Vec2(100,400),Vec2(100,275),Vec2(60,275),Vec2(60,175),Vec2(100,175)
+	const Array<Line> FieldTop {
+		Line(100, 50, 700, 50), Line(100, 175, 60, 175), Line(700, 175, 740, 175)
 	};
-	Ball Red, Blue, White;
+	const Array<Line> FieldBottom {
+		Line(100, 400, 700, 400), Line(100, 275, 60, 275), Line(700, 275, 740, 275)
+	};
+	const Array<Line> FieldLeft{
+		Line(100, 50, 100, 175), Line(60, 175, 60, 275), Line(100, 275, 100, 400)
+	};
+	const Array<Line> FieldRight {
+		Line(700, 50, 700, 175), Line(740, 175, 740, 275), Line(700, 275, 700, 400)
+	};
+	Array<Hado>{
+
+	};
+	PlayerBall Red;
+	Ball Blue, White;
 	double RedHado, BlueHado;
 	init(Red, Blue, White, RedHado, BlueHado);
 	while (System::Update()) {
-		Field.draw(Palette::Black).drawFrame(5);
-		Red.accelerate(Cursor::Pos());
+		for (const Line& l : FieldTop) {
+			l.draw(3);
+			if (l.intersects(Red.circle)) {
+				Red.velocity.y = -Red.velocity.y;
+				Red.point.y += 1;
+			}
+		}
+		for (const Line& l : FieldBottom) {
+			l.draw(3);
+			if (l.intersects(Red.circle)) {
+				Red.velocity.y = -Red.velocity.y;
+				Red.point.y -= 1;
+			}
+		}
+		for (const Line& l : FieldLeft) {
+			l.draw(3);
+			if (l.intersects(Red.circle)) {
+				Red.velocity.x = -Red.velocity.x;
+				Red.point.x += 1;
+			}
+		}
+		for (const Line& l : FieldRight) {
+			l.draw(3);
+			if (l.intersects(Red.circle)) {
+				Red.velocity.x = -Red.velocity.x;
+				Red.point.x -= 1;
+			}
+		}
+		Red.accelerate();
 		Red.move();
 		Red.Draw();
 		Red.attenuate();
