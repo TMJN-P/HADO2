@@ -6,6 +6,7 @@ public:
 	Color color;
 	Vec2 velocity;
 	Vec2 beforecenter;
+	bool reflect;
 	void draw() {
 		circle.draw(color);
 	}
@@ -124,22 +125,23 @@ void Main() {
 			init(Red, Blue, White, RedHado, BlueHado);
 		}
 		Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
+		Red.reflect = Blue.reflect = White.reflect = false;
 		for (const Rect& r : FieldTop) {
 			r.draw();
 			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
 				Red.velocity.y *= -1.1;
 				Red.circle.y += 1;
-				Red.move();
+				Red.reflect = true;
 			}
 			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
 				Blue.velocity.y *= -1.1;
 				Blue.circle.y += 1;
-				Blue.move();
+				Blue.reflect = true;
 			}
 			if (r.intersects(White.circle) || r.intersects(White.line())) {
 				White.velocity.y *= -1.1;
 				White.circle.y += 1;
-				White.move();
+				White.reflect = true;
 			}
 		}
 		for (const Rect& r : FieldBottom) {
@@ -147,17 +149,17 @@ void Main() {
 			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
 				Red.velocity.y *= -1.1;
 				Red.circle.y -= 1;
-				Red.move();
+				Red.reflect = true;
 			}
 			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
 				Blue.velocity.y *= -1.1;
 				Blue.circle.y -= 1;
-				Blue.move();
+				Blue.reflect = true;
 			}
 			if (r.intersects(White.circle) || r.intersects(White.line())) {
 				White.velocity.y *= -1.1;
 				White.circle.y -= 1;
-				White.move();
+				White.reflect = true;
 			}
 		}
 		for (const Rect& r : FieldLeft) {
@@ -165,17 +167,17 @@ void Main() {
 			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
 				Red.velocity.x *= -1.1;
 				Red.circle.x += 1;
-				Red.move();
+				Red.reflect = true;
 			}
 			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
 				Blue.velocity.x *= -1.1;
 				Blue.circle.x += 1;
-				Blue.move();
+				Blue.reflect = true;
 			}
 			if (r.intersects(White.circle) || r.intersects(White.line())) {
 				White.velocity.x *= -1.1;
 				White.circle.x += 1;
-				White.move();
+				White.reflect = true;
 			}
 		}
 		for (const Rect& r : FieldRight) {
@@ -183,18 +185,27 @@ void Main() {
 			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
 				Red.velocity.x *= -1.1;
 				Red.circle.x -= 1;
-				Red.move();
+				Red.reflect = true;
 			}
 			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
 				Blue.velocity.x *= -1.1;
 				Blue.circle.x -= 1;
-				Blue.move();
+				Blue.reflect = true;
 			}
 			if (r.intersects(White.circle) || r.intersects(White.line())) {
 				White.velocity.x *= -1.1;
 				White.circle.x -= 1;
-				White.move();
+				White.reflect = true;
 			}
+		}
+		if (Red.reflect) {
+			Red.move();
+		}
+		if (Blue.reflect) {
+			Blue.move();
+		}
+		if (White.reflect) {
+			White.move();
 		}
 		for (Hado& h : HadoArray) {
 			h.draw();
