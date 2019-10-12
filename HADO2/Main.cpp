@@ -40,8 +40,15 @@ public:
 	int radius, power;
 	bool hitred, hitblue, hitwhite;
 	Color color;
+	void move() {
+		radius += 15;
+		power -= 5;
+	}
 	void draw() {
-
+		for (int i = 0; i < power; i++) {
+			color.a = 255 * i / (power * 2) + 127;
+			Circle(center, radius + power - i).drawFrame(1, color);
+		}
 	}
 	void hit() {
 
@@ -84,28 +91,28 @@ void Main() {
 		Red.Draw();
 		Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
 		for (const Line& l : FieldTop) {
-			l.draw(3);
+			l.draw(5);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.y = -Red.velocity.y;
 				Red.circle.center.y += 1;
 			}
 		}
 		for (const Line& l : FieldBottom) {
-			l.draw(3);
+			l.draw(5);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.y = -Red.velocity.y;
 				Red.circle.center.y -= 1;
 			}
 		}
 		for (const Line& l : FieldLeft) {
-			l.draw(3);
+			l.draw(5);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.x = -Red.velocity.x;
 				Red.circle.center.x += 1;
 			}
 		}
 		for (const Line& l : FieldRight) {
-			l.draw(3);
+			l.draw(5);
 			if (l.intersects(Red.circle)) {
 				Red.velocity.x = -Red.velocity.x;
 				Red.circle.center.x -= 1;
@@ -114,21 +121,27 @@ void Main() {
 		for (Hado& h : HadoArray) {
 			h.draw();
 			h.hit();
+			h.move();
 		}
-
+		while (!HadoArray.empty() && HadoArray.front().power <= 0) {
+			HadoArray.pop_front();
+		}
 		if (MouseL.pressed()) {
 			RedHado++;
 		}
 		if (MouseL.up()) {
+			HadoArray.push_back({ Red.circle.center, 0, RedHado, true, false, false, Palette::Red });
 			RedHado = 0;
 			//ゆっくり減るよう あとで調整
 		}
-		RedHado = Min(RedHado, 250);
+		RedHado = Min(RedHado, 240);
 
 		Red.accelerate();
 		Red.move();
 		Red.attenuate();
-		Rect(100, 420, 250, 40).drawFrame(0, 5);
-		Rect(100, 420, RedHado, 40).draw(Palette::Red);
+		Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
+		Rect(120, 420, RedHado, 40).draw(Palette::Red);
+		Rect(440, 420, 240, 40).drawFrame(0, 2, Color(200, 200, 255));
+		Rect(680 - BlueHado, 420, BlueHado, 40).draw(Palette::Blue);
 	}
 }
