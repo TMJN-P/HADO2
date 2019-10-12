@@ -5,6 +5,7 @@ public:
 	Circle circle;
 	Color color;
 	Vec2 velocity;
+	Vec2 beforecenter;
 	void draw() {
 		circle.draw(color);
 	}
@@ -16,10 +17,14 @@ public:
 		velocity += b;
 	}
 	void move() {
+		beforecenter = circle.center;
 		circle.center += velocity;
 	}
 	void attenuate() {
 		velocity *= 0.95;
+	}
+	Line line() {
+		return Line({circle.center, beforecenter});
 	}
 };
 
@@ -50,8 +55,10 @@ public:
 		power -= 5;
 	}
 	void draw() {
+		Color c = color;
+		c.a = 0;
 		for (int i = 0; i < power; i++) {
-			color.a = 255 * i / (power * 2) + 127;
+			color.a = 255 * i / (power * 2) + 80;
 			Circle(center, radius + power - i).drawFrame(1, color);
 		}
 	}
@@ -93,90 +100,100 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado)
 void Main() {
 	Scene::SetBackground(Palette::Black);
 	Graphics::SetTargetFrameRateHz(60);
-	const Font font(60);
-	const Array<Line> FieldTop {
-		Line(100, 50, 700, 50), Line(100, 175, 60, 175), Line(700, 175, 740, 175)
+	const Array<Rect> FieldTop {
+		Rect(95, 45, 610, 5), Rect(50, 170, 50, 5), Rect(700, 170, 50, 5)
 	};
-	const Array<Line> FieldBottom {
-		Line(100, 400, 700, 400), Line(100, 275, 60, 275), Line(700, 275, 740, 275)
+	const Array<Rect> FieldBottom {
+		Rect(95, 400, 610, 5), Rect(50, 275, 50, 5), Rect(700, 275, 50, 5)
 	};
-	const Array<Line> FieldLeft{
-		Line(100, 50, 100, 175), Line(60, 175, 60, 275), Line(100, 275, 100, 400)
+	const Array<Rect> FieldLeft{
+		Rect(95, 45, 5, 130), Rect(50, 170, 5, 110), Rect(95, 275, 5, 130)
 	};
-	const Array<Line> FieldRight {
-		Line(700, 50, 700, 175), Line(740, 175, 740, 275), Line(700, 275, 700, 400)
+	const Array<Rect> FieldRight{
+		Rect(700, 45, 5, 130), Rect(745, 170, 5, 110), Rect(700, 275, 5, 130)
 	};
+	const Rect RedGoal(55, 175, 45, 100);
 	Array<Hado> HadoArray;
 	PlayerBall Red;
 	Ball Blue, White;
 	int RedHado, BlueHado;
 	init(Red, Blue, White, RedHado, BlueHado);
 	while (System::Update()) {
+		RedGoal.draw({ Color(255,0,0,255),Color(255,0,0,50),Color(255,0,0,50),Color(255,0,0,255) });
 		if (KeySpace.down()) {
 			init(Red, Blue, White, RedHado, BlueHado);
 		}
-		Red.draw();
-		Blue.draw();
-		White.draw();
 		Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
-		for (const Line& l : FieldTop) {
-			l.draw(5);
-			if (l.intersects(Red.circle)) {
-				Red.velocity.y = -Red.velocity.y;
+		for (const Rect& r : FieldTop) {
+			r.draw();
+			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
+				Red.velocity.y *= -1.1;
 				Red.circle.y += 1;
-			}			
-			if (l.intersects(Blue.circle)) {
-				Blue.velocity.y = -Blue.velocity.y;
+				Red.move();
+			}
+			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
+				Blue.velocity.y *= -1.1;
 				Blue.circle.y += 1;
+				Blue.move();
 			}
-			if (l.intersects(White.circle)) {
-				White.velocity.y = -White.velocity.y;
+			if (r.intersects(White.circle) || r.intersects(White.line())) {
+				White.velocity.y *= -1.1;
 				White.circle.y += 1;
+				White.move();
 			}
 		}
-		for (const Line& l : FieldBottom) {
-			l.draw(5);
-			if (l.intersects(Red.circle)) {
-				Red.velocity.y = -Red.velocity.y;
+		for (const Rect& r : FieldBottom) {
+			r.draw();
+			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
+				Red.velocity.y *= -1.1;
 				Red.circle.y -= 1;
+				Red.move();
 			}
-			if (l.intersects(Blue.circle)) {
-				Blue.velocity.y = -Blue.velocity.y;
+			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
+				Blue.velocity.y *= -1.1;
 				Blue.circle.y -= 1;
+				Blue.move();
 			}
-			if (l.intersects(White.circle)) {
-				White.velocity.y = -White.velocity.y;
+			if (r.intersects(White.circle) || r.intersects(White.line())) {
+				White.velocity.y *= -1.1;
 				White.circle.y -= 1;
+				White.move();
 			}
 		}
-		for (const Line& l : FieldLeft) {
-			l.draw(5);
-			if (l.intersects(Red.circle)) {
-				Red.velocity.x = -Red.velocity.x;
+		for (const Rect& r : FieldLeft) {
+			r.draw();
+			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
+				Red.velocity.x *= -1.1;
 				Red.circle.x += 1;
+				Red.move();
 			}
-			if (l.intersects(Blue.circle)) {
-				Blue.velocity.x= -Blue.velocity.x;
+			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
+				Blue.velocity.x *= -1.1;
 				Blue.circle.x += 1;
+				Blue.move();
 			}
-			if (l.intersects(White.circle)) {
-				White.velocity.x = -White.velocity.x;
+			if (r.intersects(White.circle) || r.intersects(White.line())) {
+				White.velocity.x *= -1.1;
 				White.circle.x += 1;
+				White.move();
 			}
 		}
-		for (const Line& l : FieldRight) {
-			l.draw(5);
-			if (l.intersects(Red.circle)) {
-				Red.velocity.x = -Red.velocity.x;
+		for (const Rect& r : FieldRight) {
+			r.draw();
+			if (r.intersects(Red.circle) || r.intersects(Red.line())) {
+				Red.velocity.x *= -1.1;
 				Red.circle.x -= 1;
+				Red.move();
 			}
-			if (l.intersects(Blue.circle)) {
-				Blue.velocity.x = -Blue.velocity.x;
+			if (r.intersects(Blue.circle) || r.intersects(Blue.line())) {
+				Blue.velocity.x *= -1.1;
 				Blue.circle.x -= 1;
+				Blue.move();
 			}
-			if (l.intersects(White.circle)) {
-				White.velocity.x = -White.velocity.x;
+			if (r.intersects(White.circle) || r.intersects(White.line())) {
+				White.velocity.x *= -1.1;
 				White.circle.x -= 1;
+				White.move();
 			}
 		}
 		for (Hado& h : HadoArray) {
@@ -196,7 +213,10 @@ void Main() {
 			//ゆっくり減るよう あとで調整
 		}
 		RedHado = Min(RedHado, 240);
-		
+
+		Red.draw();
+		Blue.draw();
+		White.draw();
 		Red.cursor();
 		Red.move();
 		Red.attenuate();
