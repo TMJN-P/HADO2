@@ -22,7 +22,7 @@ public:
 	bool across(Rect r) {
 		return(circle.center.distanceFrom(beforecenter) > 3 && r.intersects(Line(circle.center, beforecenter)) || r.intersects(circle));
 	}
-	bool move(const Array<Rect>& FieldTopInvisible, const Array<Rect>& FieldBottomInvisible, const Array<Rect>& FieldLeftInvisible, const Array<Rect>& FieldRightInvisible) {
+	void move(const Array<Rect>& FieldTopInvisible, const Array<Rect>& FieldBottomInvisible, const Array<Rect>& FieldLeftInvisible, const Array<Rect>& FieldRightInvisible) {
 		beforecenter = circle.center;
 		circle.center += velocity;
 		bool reflect = false;
@@ -61,11 +61,9 @@ public:
 		}
 		if (reflect) {
 			move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
-			return true;
 		}
-		return false;
 	}
-	bool collision(Ball& ball) {
+	void collision(Ball& ball) {
 		Circle judgmentcircle;
 		judgmentcircle.center = circle.center;
 		judgmentcircle.r = circle.r + ball.circle.r;
@@ -82,7 +80,6 @@ public:
 					m2 = circle.r * circle.r;
 					ball.velocity += c * (m1 - m2) / (m1 + m2);
 					velocity += c * 2 * m1 / (m1 + m2);
-					return true;
 				}
 			}
 		}
@@ -104,10 +101,8 @@ public:
 				m2 = circle.r * circle.r;
 				ball.velocity += c * (m1 - m2) / (m1 + m2);
 				velocity += c * 2 * m1 / (m1 + m2);
-				return true;
 			}
 		}
-		return false;
 	}
 };
 
@@ -118,14 +113,11 @@ public:
 			velocity *= 0.9;
 		}
 		else {
-			double a = atan2(Cursor::Pos().y - circle.y, Cursor::Pos().x - circle.x);
-			Vec2 b;
-			b.x = cos(a) * 0.4;
-			b.y = sin(a) * 0.4;
-			velocity += b;
+			velocity += (Cursor::Pos() - circle.center) / (Cursor::Pos() - circle.center).length() * 0.4;
 		}
 	}
 };
+
 class Hado {
 public:
 	Vec2 center;
@@ -161,7 +153,7 @@ public:
 };
 
 
-void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado) {
+void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado, double& RedHadoDisplay, double& BlueHadoDisplay) {
 	Red.circle.center = Red.beforecenter = {250, 225};
 	Red.velocity = {0, 0};
 	Red.circle.r = 10;
@@ -177,7 +169,10 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado)
 	White.circle.r = 4;
 	White.color = Palette::White;
 
-	RedHado = BlueHado = 0;
+	RedHado = 0;
+	BlueHado = 0;
+	RedHadoDisplay = 0;
+	BlueHadoDisplay = 0;
 }
 
 void Main() {
@@ -213,12 +208,13 @@ void Main() {
 	PlayerBall Red;
 	Ball Blue, White;
 	int RedHado, BlueHado;
-	init(Red, Blue, White, RedHado, BlueHado);
+	double RedHadoDisplay, BlueHadoDisplay;
+	init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
 	while (System::Update()) {
 		RedGoal.draw({Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255)});
 		BlueGoal.draw({Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50)});
 		if (KeySpace.down()) {
-			init(Red, Blue, White, RedHado, BlueHado);
+			init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
 		}
 		if (MouseR.down()) {
 			White.circle.center = Cursor::Pos();
@@ -248,11 +244,47 @@ void Main() {
 			RedHado++;
 		}
 		if (MouseL.up()) {
-			HadoArray.push_back({ Red.circle.center, 0, RedHado, true, false, false, Palette::Red });
+			HadoArray.push_back({Red.circle.center, 0, RedHado, true, false, false, Palette::Red});
 			RedHado = 0;
 			//ゆっくり減るよう あとで調整
 		}
 		RedHado = Min(RedHado, 240);
+
+		if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2 && Line(Blue.circle.center, White.circle.center + (White.circle.center - Blue.circle.center) * 1000).intersects(Line(100, 175, 100, 275))) {
+			HadoArray.push_back({Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue});
+			BlueHado = 0;
+		}
+		else {
+			Ball WhitePrediction;
+			Vec2 BlueCenter, BlueVelocity;
+			double DistanceReach, VelocityPrediction;
+
+			WhitePrediction = White;
+			BlueCenter = Blue.circle.center;
+			BlueVelocity = Blue.velocity;
+			DistanceReach = 0;
+			VelocityPrediction = 0;
+			
+			while (true) {
+				BlueVelocity *= 0.95;
+				BlueCenter += BlueVelocity;
+				VelocityPrediction += 0.4;
+				VelocityPrediction *= 0.95;
+				DistanceReach += VelocityPrediction;
+				WhitePrediction.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+				Vec2 Target = WhitePrediction.circle.center + (WhitePrediction.circle.center - Vec2(100, 225)) / (WhitePrediction.circle.center - Vec2(100, 225)).length() * 20;
+				if (BlueCenter.distanceFrom(Target)< DistanceReach) {
+					Circle(Target,2).draw(Palette::Aquamarine);
+					Blue.velocity += (Target-Blue.circle.center) / (Target - Blue.circle.center).length() * 0.4;
+					break;
+				}
+			}
+			BlueHado++;
+		}
+		BlueHado = Min(BlueHado, 240);
+
+		RedHadoDisplay = (RedHado + RedHadoDisplay * 4) / 5;
+		BlueHadoDisplay = (BlueHado + BlueHadoDisplay * 4) / 5;
 
 		Red.cursor();
 		Red.attenuate();
@@ -267,10 +299,9 @@ void Main() {
 		Red.collision(Blue);
 		Red.collision(White);
 		Blue.collision(White);
-
 		Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
-		Rect(120, 420, RedHado, 40).draw(Palette::Red);
+		Rect(120, 420, RedHadoDisplay, 40).draw(Palette::Red);
 		Rect(440, 420, 240, 40).drawFrame(0, 2, Color(200, 200, 255));
-		Rect(680 - BlueHado, 420, BlueHado, 40).draw(Palette::Blue);
+		Rect(680 - BlueHadoDisplay, 420, BlueHadoDisplay, 40).draw(Palette::Blue);
 	}
 }
