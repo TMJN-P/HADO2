@@ -178,6 +178,9 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado,
 void Main() {
 	Scene::SetBackground(Color(0, 0, 50));
 	Graphics::SetTargetFrameRateHz(60);
+	const Font fontMedium60(60, Typeface::Medium);
+	const Font fontHeavy70(70, Typeface::Heavy);
+	const Font fontRegular40(40, Typeface::Regular);
 	const Polygon PolygonH {
 		Vec2(50, 50), Vec2(80, 50), Vec2(80, 135), Vec2(160, 135), Vec2(160, 50), Vec2(190, 50), Vec2(190, 250), Vec2(160, 250), Vec2(160, 165), Vec2(80,165), Vec2(80, 250), Vec2(50, 250)
 	};
@@ -196,6 +199,11 @@ void Main() {
 	const Polygon Polygon2{
 		Vec2(720, 150), Vec2(780, 150), Vec2(780, 210), Vec2(740, 210), Vec2(740, 230), Vec2(780, 230), Vec2(780, 250), Vec2(720, 250), Vec2(720, 190), Vec2(760, 190), Vec2(760, 170), Vec2(720, 170)
 	};
+	const Rect InstructionBox(200, 300, 400, 100);
+	const Rect PlayBox(200, 450, 400, 100);
+	const Rect DifficultyEasyBox(200, 100, 400, 100);
+	const Rect DifficultyMediumBox(200, 250, 400, 100);
+	const Rect DifficultyHardBox(200, 400, 400, 100);
 	const Array<Rect> FieldTop {
 		Rect(50, 170, 50, 5), Rect(700, 170, 50, 5), Rect(95, 45, 610, 5)
 	};
@@ -227,7 +235,7 @@ void Main() {
 	Ball Blue, White;
 	int RedHado, BlueHado, RedPoint, BluePoint, Status, Timer;
 	double RedHadoDisplay, BlueHadoDisplay;
-	Status = 0;//0:メニュー 1:説明画面 10:ゲーム画面 11:赤ゴール 12:青ゴール 13:ゲームセット
+	Status = 0;//0:メニュー 1:説明画面 2:難易度選択 10:ゲーム画面 11:赤ゴール 12:青ゴール 13:ゲーム開始前 14:ゲームセット
 
 	while (System::Update()) {
 		if (Status == 0) {
@@ -241,9 +249,60 @@ void Main() {
 			PolygonO.drawFrame(5, Color(230, 220, 50));
 			Polygon2.draw(Palette::Red);
 			Polygon2.drawFrame(5, Palette::Yellow);
+			if (InstructionBox.intersects(Cursor::Pos())) {
+				InstructionBox.drawFrame(0, 10, Palette::Yellow);
+				fontHeavy70(U"あそびかた").drawAt(InstructionBox.center());
+				if (MouseL.down()) {
+					Status = 1;
+				}
+			}
+			else {
+				InstructionBox.drawFrame(0, 5, Palette::Blue);
+				fontMedium60(U"あそびかた").drawAt(InstructionBox.center());
+			}
+			if (PlayBox.intersects(Cursor::Pos())) {
+				PlayBox.drawFrame(0, 10, Palette::Yellow);
+				fontHeavy70(U"あそぶ").drawAt(PlayBox.center());
+				if (MouseL.down()) {
+					Status = 2;
+				}
+			}
+			else {
+				PlayBox.drawFrame(0, 5, Palette::Red);
+				fontMedium60(U"あそぶ").drawAt(PlayBox.center());
+			}
 		}
 		else if (Status == 1) {
-
+			fontRegular40(U"<ルール>\nサッカーやホッケーみたいなゲームです\n相手のゴールにボールを入れれば1点です\n\nマウス操作で動かします\n左クリック長押しで波動をためます\n左クリックを離すと波動を打てます\n\nクリックで戻る").drawAt(400, 300);
+			if (MouseL.down()) {
+				Status = 0;
+			}
+		}
+		else if (Status == 2) {
+			if (DifficultyEasyBox.intersects(Cursor::Pos())) {
+				DifficultyEasyBox.drawFrame(0, 10, Palette::Yellow);
+				fontHeavy70(U"よわい").drawAt(DifficultyEasyBox.center());
+			}
+			else {
+				DifficultyEasyBox.drawFrame(0, 5, Palette::Lime);
+				fontMedium60(U"よわい").drawAt(DifficultyEasyBox.center());
+			}
+			if (DifficultyMediumBox.intersects(Cursor::Pos())) {
+				DifficultyMediumBox.drawFrame(0, 10, Palette::Yellow);
+				fontHeavy70(U"ふつう").drawAt(DifficultyMediumBox.center());
+			}
+			else {
+				DifficultyMediumBox.drawFrame(0, 5, Palette::Orange);
+				fontMedium60(U"ふつう").drawAt(DifficultyMediumBox.center());
+			}
+			if (DifficultyHardBox.intersects(Cursor::Pos())) {
+				DifficultyHardBox.drawFrame(0, 10, Palette::Yellow);
+				fontHeavy70(U"つよい").drawAt(DifficultyHardBox.center());
+			}
+			else {
+				DifficultyHardBox.drawFrame(0, 5, Palette::Red);
+				fontMedium60(U"つよい").drawAt(DifficultyHardBox.center());
+			}
 		}
 		else if (Status == 10) {
 			RedGoal.draw({ Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255) });
@@ -343,6 +402,10 @@ void Main() {
 		}
 		else if (Status == 12) {
 
+		}
+		else if (Status == 13) {
+		}
+		else if (Status == 14) {
 		}
 	}
 }
