@@ -6,7 +6,6 @@ public:
 	Color color;
 	Vec2 velocity;
 	Vec2 beforecenter;
-	bool reflect;
 	void draw() {
 		circle.draw(color);
 	}
@@ -17,15 +16,98 @@ public:
 		b.y = sin(a) * 1.1 * power / circle.r;
 		velocity += b;
 	}
-	void move() {
-		beforecenter = circle.center;
-		circle.center += velocity;
-	}
 	void attenuate() {
 		velocity *= 0.95;
 	}
 	bool across(Rect r) {
 		return(circle.center.distanceFrom(beforecenter) > 3 && r.intersects(Line(circle.center, beforecenter)) || r.intersects(circle));
+	}
+	bool move(const Array<Rect>& FieldTopInvisible, const Array<Rect>& FieldBottomInvisible, const Array<Rect>& FieldLeftInvisible, const Array<Rect>& FieldRightInvisible) {
+		beforecenter = circle.center;
+		circle.center += velocity;
+		bool reflect = false;
+
+		for (const Rect& r : FieldTopInvisible) {
+			if (across(r)) {
+				velocity.y *= -1.1;
+				circle.y = r.y + r.h + circle.r + 1;
+				reflect = true;
+				break;
+			}
+		}
+		for (const Rect& r : FieldBottomInvisible) {
+			if (across(r)) {
+				velocity.y *= -1.1;
+				circle.y = r.y - circle.r - 1;
+				reflect = true;
+				break;
+			}
+		}
+		for (const Rect& r : FieldLeftInvisible) {
+			if (across(r)) {
+				velocity.x *= -1.1;
+				circle.x = r.x + r.w + circle.r + 1;
+				reflect = true;
+				break;
+			}
+		}
+		for (const Rect& r : FieldRightInvisible) {
+			if (across(r)) {
+				velocity.x *= -1.1;
+				circle.x = r.x - circle.r - 1;
+				reflect = true;
+				break;
+			}
+		}
+		if (reflect) {
+			move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			return true;
+		}
+		return false;
+	}
+	bool collision(Ball& ball) {
+		Circle judgmentcircle;
+		judgmentcircle.center = circle.center;
+		judgmentcircle.r = circle.r + ball.circle.r;
+		if (ball.circle.center.distanceFrom(ball.beforecenter) < 3) {
+			if (circle.intersects(ball.circle)) {
+				Vec2 a, b, c;
+				int m1, m2;
+				a = ball.velocity - velocity;
+				b = beforecenter - ball.beforecenter;
+				if (a.dot(b) > 0) {
+					c = b * a.dot(b) / b.length() / b.length();
+					ball.velocity -= c;
+					m1 = ball.circle.r * ball.circle.r;
+					m2 = circle.r * circle.r;
+					ball.velocity += c * (m1 - m2) / (m1 + m2);
+					velocity += c * 2 * m1 / (m1 + m2);
+					return true;
+				}
+			}
+		}
+		else if (const Optional<Array<Vec2>> points = judgmentcircle.intersectsAt(Line(ball.circle.center, ball.beforecenter))) {
+			Vec2 collisionpoint(869120, 869120);
+			for (const Vec2& point : points.value()) {
+				if (collisionpoint.distanceFrom(ball.beforecenter) < point.distanceFrom(ball.beforecenter)) {
+					collisionpoint=point;
+				}
+			}
+			Vec2 a, b, c;
+			int m1, m2;
+			a = ball.velocity - velocity;
+			b = circle.center - collisionpoint;
+			if (a.dot(b) > 0) {
+				c = b * a.dot(b) / b.length() / b.length();
+				ball.velocity -= c;
+				m1 = ball.circle.r * ball.circle.r;
+				m2 = circle.r * circle.r;
+				ball.velocity += c * (m1 - m2) / (m1 + m2);
+				velocity += c * 2 * m1 / (m1 + m2);
+				return true;
+			}
+		}
+		return false;
 	}
 };
 
@@ -44,7 +126,6 @@ public:
 		}
 	}
 };
-
 class Hado {
 public:
 	Vec2 center;
@@ -126,7 +207,6 @@ void Main() {
 	const Array<Rect> FieldRightInvisible{
 		Rect(700, -200, 5, 375), Rect(700, 275, 5, 380), Rect(745, 0, 5, 450)
 	};
-
 	const Rect RedGoal(55, 175, 45, 100);
 	const Rect BlueGoal(700, 175, 45, 100);
 	Array<Hado> HadoArray;
@@ -144,7 +224,6 @@ void Main() {
 			White.circle.center = Cursor::Pos();
 		}
 		Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
-		Red.reflect = Blue.reflect = White.reflect = false;
 		for (const Rect& r : FieldTop) {
 			r.draw();
 
@@ -156,114 +235,7 @@ void Main() {
 		}
 		for (const Rect& r : FieldRight) {
 			r.draw();
-		}do {
-			Red.move();
-			Red.reflect = false;
-			for (const Rect& r : FieldTopInvisible) {
-				if (Red.across(r)) {
-					Red.velocity.y *= -1.1;
-					Red.circle.y = r.y + r.h + Red.circle.r + 1;
-					Red.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldBottomInvisible) {
-				if (Red.across(r)) {
-					Red.velocity.y *= -1.1;
-					Red.circle.y = r.y - Red.circle.r - 1;
-					Red.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldLeftInvisible) {
-				if (Red.across(r)) {
-					Red.velocity.x *= -1.1;
-					Red.circle.x = r.x + r.w + Red.circle.r + 1;
-					Red.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldRightInvisible) {
-				if (Red.across(r)) {
-					Red.velocity.x *= -1.1;
-					Red.circle.x = r.x - Red.circle.r - 1;
-					Red.reflect = true;
-					break;
-				}
-			}
-		} while (Red.reflect);
-		do {
-			Blue.move();
-			Blue.reflect = false;
-			for (const Rect& r : FieldTopInvisible) {
-				if (Blue.across(r)) {
-					Blue.velocity.y *= -1.1;
-					Blue.circle.y = r.y + r.h + Blue.circle.r + 1;
-					Blue.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldBottomInvisible) {
-				if (Blue.across(r)) {
-					Blue.velocity.y *= -1.1;
-					Blue.circle.y = r.y - Blue.circle.r - 1;
-					Blue.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldLeftInvisible) {
-				if (Blue.across(r)) {
-					Blue.velocity.x *= -1.1;
-					Blue.circle.x = r.x + r.w + Blue.circle.r + 1;
-					Blue.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldRightInvisible) {
-				if (Blue.across(r)) {
-					Blue.velocity.x *= -1.1;
-					Blue.circle.x = r.x - Blue.circle.r - 1;
-					Blue.reflect = true;
-					break;
-				}
-			}
-		} while (Blue.reflect);
-		do {
-			White.move();
-			White.reflect = false;
-			for (const Rect& r : FieldTopInvisible) {
-				if (White.across(r)) {
-					White.velocity.y *= -1.1;
-					White.circle.y = r.y + r.h + White.circle.r + 1;
-					White.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldBottomInvisible) {
-				if (White.across(r)) {
-					White.velocity.y *= -1.1;
-					White.circle.y = r.y - White.circle.r - 1;
-					White.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldLeftInvisible) {
-				if (White.across(r)) {
-					White.velocity.x *= -1.1;
-					White.circle.x = r.x + r.w + White.circle.r + 1;
-					White.reflect = true;
-					break;
-				}
-			}
-			for (const Rect& r : FieldRightInvisible) {
-				if (White.across(r)) {
-					White.velocity.x *= -1.1;
-					White.circle.x = r.x - White.circle.r - 1;
-					White.reflect = true;
-					break;
-				}
-			}
-		} while (White.reflect);
+		}
 		for (Hado& h : HadoArray) {
 			h.draw();
 			h.hit(Red, Blue, White);
@@ -282,13 +254,19 @@ void Main() {
 		}
 		RedHado = Min(RedHado, 240);
 
+		Red.cursor();
+		Red.attenuate();
+		Red.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+		Blue.attenuate();
+		Blue.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+		White.attenuate();
+		White.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
 		Red.draw();
 		Blue.draw();
 		White.draw();
-		Red.cursor();
-		Red.attenuate();
-		Blue.attenuate();
-		White.attenuate();
+		Red.collision(Blue);
+		Red.collision(White);
+		Blue.collision(White);
 
 		Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
 		Rect(120, 420, RedHado, 40).draw(Palette::Red);
