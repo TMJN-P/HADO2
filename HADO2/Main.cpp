@@ -166,7 +166,7 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado,
 
 	White.circle.center = White.beforecenter = {400, 225};
 	White.velocity = {0, 0};
-	White.circle.r = 4;
+	White.circle.r = 6;
 	White.color = Palette::White;
 
 	RedHado = 0;
@@ -176,8 +176,26 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado,
 }
 
 void Main() {
-	Scene::SetBackground(Palette::Black);
+	Scene::SetBackground(Color(0, 0, 50));
 	Graphics::SetTargetFrameRateHz(60);
+	const Polygon PolygonH {
+		Vec2(50, 50), Vec2(80, 50), Vec2(80, 135), Vec2(160, 135), Vec2(160, 50), Vec2(190, 50), Vec2(190, 250), Vec2(160, 250), Vec2(160, 165), Vec2(80,165), Vec2(80, 250), Vec2(50, 250)
+	};
+	const Polygon PolygonA {
+		{Vec2(220, 250), Vec2(270, 50), Vec2(310, 50), Vec2(360, 250), Vec2(330, 250), Vec2(310, 170), Vec2(270, 170), Vec2(250, 250)},
+		{{Vec2(277.5, 140), Vec2(290, 90), Vec2(302.5, 140)}}
+	};
+	const Polygon PolygonD {
+		{Vec2(390, 50), Vec2(470, 50), Vec2(530, 110), Vec2(530, 190), Vec2(470, 250), Vec2(390, 250)},
+		{{Vec2(420, 80), Vec2(460, 80), Vec2(500, 120), Vec2(500, 180), Vec2(460, 220), Vec2(420, 220)}}
+	};
+	const Polygon PolygonO {
+		{Vec2(590, 50), Vec2(650, 50), Vec2(690, 90), Vec2(690, 210), Vec2(650, 250), Vec2(590, 250), Vec2(550, 210), Vec2(550, 90)},
+		{{Vec2(600, 80), Vec2(640, 80), Vec2(660, 100), Vec2(660, 200), Vec2(640, 220), Vec2(600, 220), Vec2(580, 200), Vec2(580, 100)}}
+	};
+	const Polygon Polygon2{
+		Vec2(720, 150), Vec2(780, 150), Vec2(780, 210), Vec2(740, 210), Vec2(740, 230), Vec2(780, 230), Vec2(780, 250), Vec2(720, 250), Vec2(720, 190), Vec2(760, 190), Vec2(760, 170), Vec2(720, 170)
+	};
 	const Array<Rect> FieldTop {
 		Rect(50, 170, 50, 5), Rect(700, 170, 50, 5), Rect(95, 45, 610, 5)
 	};
@@ -207,101 +225,124 @@ void Main() {
 	Array<Hado> HadoArray;
 	PlayerBall Red;
 	Ball Blue, White;
-	int RedHado, BlueHado;
+	int RedHado, BlueHado, RedPoint, BluePoint, Status, Timer;
 	double RedHadoDisplay, BlueHadoDisplay;
-	init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+	Status = 0;//0:メニュー 1:説明画面 10:ゲーム画面 11:赤ゴール 12:青ゴール 13:ゲームセット
+
 	while (System::Update()) {
-		RedGoal.draw({Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255)});
-		BlueGoal.draw({Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50)});
-		if (KeySpace.down()) {
-			init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+		if (Status == 0) {
+			PolygonH.draw(Palette::Red);
+			PolygonH.drawFrame(5, Color(230, 220, 50));
+			PolygonA.draw(Palette::Blue);
+			PolygonA.drawFrame(5, Color(230, 220, 50));
+			PolygonD.draw(Palette::Red);
+			PolygonD.drawFrame(5, Color(230, 220, 50));
+			PolygonO.draw(Palette::Blue);
+			PolygonO.drawFrame(5, Color(230, 220, 50));
+			Polygon2.draw(Palette::Red);
+			Polygon2.drawFrame(5, Palette::Yellow);
 		}
-		if (MouseR.down()) {
-			White.circle.center = Cursor::Pos();
-		}
-		Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
-		for (const Rect& r : FieldTop) {
-			r.draw();
+		else if (Status == 1) {
 
-		}for (const Rect& r : FieldBottom) {
-			r.draw();
 		}
-		for (const Rect& r : FieldLeft) {
-			r.draw();
-		}
-		for (const Rect& r : FieldRight) {
-			r.draw();
-		}
-		for (Hado& h : HadoArray) {
-			h.draw();
-			h.hit(Red, Blue, White);
-			h.move();
-		}
-		while (!HadoArray.empty() && HadoArray.front().power <= 0) {
-			HadoArray.pop_front();
-		}
-		if (MouseL.pressed()) {
-			RedHado++;
-		}
-		if (MouseL.up()) {
-			HadoArray.push_back({Red.circle.center, 0, RedHado, true, false, false, Palette::Red});
-			RedHado = 0;
-			//ゆっくり減るよう あとで調整
-		}
-		RedHado = Min(RedHado, 240);
-
-		if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2 && Line(Blue.circle.center, White.circle.center + (White.circle.center - Blue.circle.center) * 1000).intersects(Line(100, 175, 100, 275))) {
-			HadoArray.push_back({Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue});
-			BlueHado = 0;
-		}
-		else {
-			Ball WhitePrediction;
-			Vec2 BlueCenter, BlueVelocity;
-			double DistanceReach, VelocityPrediction;
-
-			WhitePrediction = White;
-			BlueCenter = Blue.circle.center;
-			BlueVelocity = Blue.velocity;
-			DistanceReach = 0;
-			VelocityPrediction = 0;
-			
-			for (int i = 0; i < 200; i++) {
-				BlueVelocity *= 0.95;
-				BlueCenter += BlueVelocity;
-				VelocityPrediction += 0.4;
-				VelocityPrediction *= 0.95;
-				DistanceReach += VelocityPrediction;
-				WhitePrediction.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
-				Vec2 Target = WhitePrediction.circle.center + (WhitePrediction.circle.center - Vec2(100, 225)) / (WhitePrediction.circle.center - Vec2(100, 225)).length() * 20;
-				if (BlueCenter.distanceFrom(Target)< DistanceReach) {
-					Circle(Target,2).draw(Palette::Aquamarine);
-					Blue.velocity += (Target-Blue.circle.center) / (Target - Blue.circle.center).length() * 0.4;
-					break;
-				}
+		else if (Status == 10) {
+			RedGoal.draw({ Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255) });
+			BlueGoal.draw({ Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50) });
+			if (KeySpace.down()) {
+				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
 			}
-			BlueHado++;
+			if (MouseR.down()) {
+				White.circle.center = Cursor::Pos();
+			}
+			Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
+			for (const Rect& r : FieldTop) {
+				r.draw();
+
+			}for (const Rect& r : FieldBottom) {
+				r.draw();
+			}
+			for (const Rect& r : FieldLeft) {
+				r.draw();
+			}
+			for (const Rect& r : FieldRight) {
+				r.draw();
+			}
+			for (Hado& h : HadoArray) {
+				h.draw();
+				h.hit(Red, Blue, White);
+				h.move();
+			}
+			while (!HadoArray.empty() && HadoArray.front().power <= 0) {
+				HadoArray.pop_front();
+			}
+			if (MouseL.pressed()) {
+				RedHado++;
+			}
+			if (MouseL.up()) {
+				HadoArray.push_back({ Red.circle.center, 0, RedHado, true, false, false, Palette::Red });
+				RedHado = 0;
+			}
+			RedHado = Min(RedHado, 240);
+
+			if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2 && Line(Blue.circle.center, White.circle.center + (White.circle.center - Blue.circle.center) * 1000).intersects(Line(100, 175, 100, 275))) {
+				HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
+				BlueHado = 0;
+			}
+			else {
+				Ball WhitePrediction;
+				Vec2 BlueCenter, BlueVelocity;
+				double DistanceReach, VelocityPrediction;
+
+				WhitePrediction = White;
+				BlueCenter = Blue.circle.center;
+				BlueVelocity = Blue.velocity;
+				DistanceReach = 0;
+				VelocityPrediction = 0;
+
+				for (int i = 0; i < 200; i++) {
+					BlueVelocity *= 0.95;
+					BlueCenter += BlueVelocity;
+					VelocityPrediction += 0.4;
+					VelocityPrediction *= 0.95;
+					DistanceReach += VelocityPrediction;
+					WhitePrediction.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+					Vec2 Target = WhitePrediction.circle.center + (WhitePrediction.circle.center - Vec2(100, 225)) / (WhitePrediction.circle.center - Vec2(100, 225)).length() * 20;
+					if (BlueCenter.distanceFrom(Target) < DistanceReach) {
+						Circle(Target, 2).draw(Palette::Aquamarine);
+						Blue.velocity += (Target - Blue.circle.center) / (Target - Blue.circle.center).length() * 0.4;
+						break;
+					}
+				}
+				BlueHado++;
+			}
+			BlueHado = Min(BlueHado, 240);
+
+			RedHadoDisplay = (RedHado + RedHadoDisplay * 4) / 5;
+			BlueHadoDisplay = (BlueHado + BlueHadoDisplay * 4) / 5;
+
+			Red.cursor();
+			Red.attenuate();
+			Red.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			Blue.attenuate();
+			Blue.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			White.attenuate();
+			White.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			Red.draw();
+			Blue.draw();
+			White.draw();
+			Red.collision(Blue);
+			Red.collision(White);
+			Blue.collision(White);
+			Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
+			Rect(120, 420, RedHadoDisplay, 40).draw(Palette::Red);
+			Rect(440, 420, 240, 40).drawFrame(0, 2, Color(200, 200, 255));
+			Rect(680 - BlueHadoDisplay, 420, BlueHadoDisplay, 40).draw(Palette::Blue);
 		}
-		BlueHado = Min(BlueHado, 240);
+		else if (Status == 11) {
 
-		RedHadoDisplay = (RedHado + RedHadoDisplay * 4) / 5;
-		BlueHadoDisplay = (BlueHado + BlueHadoDisplay * 4) / 5;
+		}
+		else if (Status == 12) {
 
-		Red.cursor();
-		Red.attenuate();
-		Red.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
-		Blue.attenuate();
-		Blue.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
-		White.attenuate();
-		White.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
-		Red.draw();
-		Blue.draw();
-		White.draw();
-		Red.collision(Blue);
-		Red.collision(White);
-		Blue.collision(White);
-		Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
-		Rect(120, 420, RedHadoDisplay, 40).draw(Palette::Red);
-		Rect(440, 420, 240, 40).drawFrame(0, 2, Color(200, 200, 255));
-		Rect(680 - BlueHadoDisplay, 420, BlueHadoDisplay, 40).draw(Palette::Blue);
+		}
 	}
 }
