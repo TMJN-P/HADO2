@@ -60,7 +60,7 @@ public:
 		c.a = 0;
 		for (int i = 0; i < power; i++) {
 			color.a = 255 * i / (power * 2) + 80;
-			Circle(center, radius + power - i).drawFrame(1, color);
+			Circle(center, radius + power - i).drawFrame(2, color);
 		}
 	}
 	void hit(PlayerBall& Red, Ball& Blue,Ball& White) {
@@ -128,13 +128,15 @@ void Main() {
 	};
 
 	const Rect RedGoal(55, 175, 45, 100);
+	const Rect BlueGoal(700, 175, 45, 100);
 	Array<Hado> HadoArray;
 	PlayerBall Red;
 	Ball Blue, White;
 	int RedHado, BlueHado;
 	init(Red, Blue, White, RedHado, BlueHado);
 	while (System::Update()) {
-		RedGoal.draw({ Color(255,0,0,255),Color(255,0,0,50),Color(255,0,0,50),Color(255,0,0,255) });
+		RedGoal.draw({Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255)});
+		BlueGoal.draw({Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50)});
 		if (KeySpace.down()) {
 			init(Red, Blue, White, RedHado, BlueHado);
 		}
@@ -154,11 +156,10 @@ void Main() {
 		}
 		for (const Rect& r : FieldRight) {
 			r.draw();
-		}
-		do {
+		}do {
 			Red.move();
 			Red.reflect = false;
-			for (const Rect& r : FieldTop) {
+			for (const Rect& r : FieldTopInvisible) {
 				if (Red.across(r)) {
 					Red.velocity.y *= -1.1;
 					Red.circle.y = r.y + r.h + Red.circle.r + 1;
@@ -166,7 +167,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldBottom) {
+			for (const Rect& r : FieldBottomInvisible) {
 				if (Red.across(r)) {
 					Red.velocity.y *= -1.1;
 					Red.circle.y = r.y - Red.circle.r - 1;
@@ -174,7 +175,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldLeft) {
+			for (const Rect& r : FieldLeftInvisible) {
 				if (Red.across(r)) {
 					Red.velocity.x *= -1.1;
 					Red.circle.x = r.x + r.w + Red.circle.r + 1;
@@ -182,7 +183,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldRight) {
+			for (const Rect& r : FieldRightInvisible) {
 				if (Red.across(r)) {
 					Red.velocity.x *= -1.1;
 					Red.circle.x = r.x - Red.circle.r - 1;
@@ -194,7 +195,7 @@ void Main() {
 		do {
 			Blue.move();
 			Blue.reflect = false;
-			for (const Rect& r : FieldTop) {
+			for (const Rect& r : FieldTopInvisible) {
 				if (Blue.across(r)) {
 					Blue.velocity.y *= -1.1;
 					Blue.circle.y = r.y + r.h + Blue.circle.r + 1;
@@ -202,7 +203,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldBottom) {
+			for (const Rect& r : FieldBottomInvisible) {
 				if (Blue.across(r)) {
 					Blue.velocity.y *= -1.1;
 					Blue.circle.y = r.y - Blue.circle.r - 1;
@@ -210,7 +211,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldLeft) {
+			for (const Rect& r : FieldLeftInvisible) {
 				if (Blue.across(r)) {
 					Blue.velocity.x *= -1.1;
 					Blue.circle.x = r.x + r.w + Blue.circle.r + 1;
@@ -218,7 +219,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldRight) {
+			for (const Rect& r : FieldRightInvisible) {
 				if (Blue.across(r)) {
 					Blue.velocity.x *= -1.1;
 					Blue.circle.x = r.x - Blue.circle.r - 1;
@@ -230,7 +231,7 @@ void Main() {
 		do {
 			White.move();
 			White.reflect = false;
-			for (const Rect& r : FieldTop) {
+			for (const Rect& r : FieldTopInvisible) {
 				if (White.across(r)) {
 					White.velocity.y *= -1.1;
 					White.circle.y = r.y + r.h + White.circle.r + 1;
@@ -238,7 +239,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldBottom) {
+			for (const Rect& r : FieldBottomInvisible) {
 				if (White.across(r)) {
 					White.velocity.y *= -1.1;
 					White.circle.y = r.y - White.circle.r - 1;
@@ -246,7 +247,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldLeft) {
+			for (const Rect& r : FieldLeftInvisible) {
 				if (White.across(r)) {
 					White.velocity.x *= -1.1;
 					White.circle.x = r.x + r.w + White.circle.r + 1;
@@ -254,7 +255,7 @@ void Main() {
 					break;
 				}
 			}
-			for (const Rect& r : FieldRight) {
+			for (const Rect& r : FieldRightInvisible) {
 				if (White.across(r)) {
 					White.velocity.x *= -1.1;
 					White.circle.x = r.x - White.circle.r - 1;
@@ -289,7 +290,6 @@ void Main() {
 		Blue.attenuate();
 		White.attenuate();
 
-		Print << White.circle.center << White.velocity;
 		Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
 		Rect(120, 420, RedHado, 40).draw(Palette::Red);
 		Rect(440, 420, 240, 40).drawFrame(0, 2, Color(200, 200, 255));
