@@ -265,7 +265,7 @@ void Main() {
 			DistanceReach = 0;
 			VelocityPrediction = 0;
 			
-			while (true) {
+			for (int i = 0; i < 200; i++) {
 				BlueVelocity *= 0.95;
 				BlueCenter += BlueVelocity;
 				VelocityPrediction += 0.4;
