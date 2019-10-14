@@ -178,6 +178,7 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado,
 
 void Main() {
 	Scene::SetBackground(Color(0, 0, 50));
+	Window::SetTitle(U"HADO2");
 	Graphics::SetTargetFrameRateHz(60);
 	const Font fontMedium60(60, Typeface::Medium);
 	const Font fontMedium100(100, Typeface::Medium);
