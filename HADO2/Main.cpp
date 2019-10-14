@@ -401,10 +401,13 @@ void Main() {
 				VelocityPrediction = 0;
 
 				if (Difficulty == 0) {
-					Acceleration = 0.06;
+					Acceleration = 0.04;
 				}
 				else if (Difficulty == 1) {
-					Acceleration = 0.2;
+					Acceleration = 0.1;
+				}
+				else if (Difficulty == 2) {
+					Acceleration = 0.3;
 				}
 				else {
 					Acceleration = 0.4;
@@ -701,7 +704,6 @@ void Main() {
 			}
 		}
 		else if (Status == 14) {
-			Difficulty = 3;
 			Rect(360, 338, 80, 23).draw();
 			Rect(20, 225, 760, 250).drawFrame(0, 8);
 			fontRegular255(RedPoint).drawAt(200, 350, Palette::Red);
