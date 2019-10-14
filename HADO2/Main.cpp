@@ -367,8 +367,11 @@ void Main() {
 			}
 			RedHado = Min(RedHado, 240);
 
-
 			if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2 && Line(Blue.circle.center, White.circle.center + (White.circle.center - Blue.circle.center) * 1000).intersects(Line(100, 175, 100, 275))) {
+				HadoArray.push_back({Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue});
+				BlueHado = 0;
+			}
+			else if (Difficulty <= 1 && BlueHado >= 100) {
 				HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
 				BlueHado = 0;
 			}
@@ -379,7 +382,7 @@ void Main() {
 					BlueHado++;
 				}
 				else if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2) {
-					HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
+					HadoArray.push_back({Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue});
 					BlueHado = 0;
 				}
 				else {
@@ -398,7 +401,7 @@ void Main() {
 				VelocityPrediction = 0;
 
 				if (Difficulty == 0) {
-					Acceleration = 0.04;
+					Acceleration = 0.05;
 				}
 				else if (Difficulty == 1) {
 					Acceleration = 0.1;
@@ -409,7 +412,7 @@ void Main() {
 				else {
 					Acceleration = 0.4;
 				}
-				for (int i = 0; i < 200; i++) {
+				for (int i = 0; i < 500; i++) {
 					BlueVelocity *= 0.95;
 					BlueCenter += BlueVelocity;
 					VelocityPrediction += Acceleration;
@@ -722,8 +725,8 @@ void Main() {
 			else {
 				fontMedium150(U"DRAW").drawAt(400, 100);
 			}
-			fontRegular30(U"Thank you for playing!").drawAt(400, 550);
-			fontRegular20(U"エンターキーでおわる").drawAt(400, 650);
+			fontRegular30(U"Thank you for playing!").drawAt(400, 510);
+			fontRegular20(U"エンターキーでおわる").drawAt(400, 550);
 			if (KeyEnter.down()) {
 				return;
 			}
