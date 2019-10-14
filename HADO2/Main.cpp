@@ -171,6 +171,7 @@ void init(PlayerBall& Red, Ball& Blue, Ball& White, int& RedHado, int& BlueHado,
 
 	RedHado = 0;
 	BlueHado = 0;
+
 	RedHadoDisplay = 0;
 	BlueHadoDisplay = 0;
 }
@@ -179,8 +180,15 @@ void Main() {
 	Scene::SetBackground(Color(0, 0, 50));
 	Graphics::SetTargetFrameRateHz(60);
 	const Font fontMedium60(60, Typeface::Medium);
+	const Font fontMedium100(100, Typeface::Medium);
+	const Font fontMedium150(150, Typeface::Medium);
+	const Font fontMedium200(200, Typeface::Medium);
 	const Font fontHeavy70(70, Typeface::Heavy);
+	const Font fontHeavy255(255, Typeface::Heavy);
+	const Font fontRegular20(20, Typeface::Regular);
+	const Font fontRegular30(30, Typeface::Regular);
 	const Font fontRegular40(40, Typeface::Regular);
+	const Font fontRegular255(255, Typeface::Regular);
 	const Polygon PolygonH {
 		Vec2(50, 50), Vec2(80, 50), Vec2(80, 135), Vec2(160, 135), Vec2(160, 50), Vec2(190, 50), Vec2(190, 250), Vec2(160, 250), Vec2(160, 165), Vec2(80,165), Vec2(80, 250), Vec2(50, 250)
 	};
@@ -210,7 +218,7 @@ void Main() {
 	const Array<Rect> FieldBottom {
 		Rect(50, 275, 50, 5), Rect(700, 275, 50, 5), Rect(95, 400, 610, 5)
 	};
-	const Array<Rect> FieldLeft{
+	const Array<Rect> FieldLeft {
 		Rect(95, 45, 5, 130), Rect(95, 275, 5, 130), Rect(50, 170, 5, 110)
 	};
 	const Array<Rect> FieldRight{
@@ -230,13 +238,17 @@ void Main() {
 	};
 	const Rect RedGoal(55, 175, 45, 100);
 	const Rect BlueGoal(700, 175, 45, 100);
+	const Rect RedHadoMeter(120, 420, 240, 40);
+	const Rect BlueHadoMeter(440, 420, 240, 40);
+	const Rect TimerBox(350, 500, 100, 60);
 	Array<Hado> HadoArray;
 	PlayerBall Red;
 	Ball Blue, White;
-	int RedHado, BlueHado, RedPoint, BluePoint, Status, Timer;
+	int RedHado, BlueHado, RedPoint, BluePoint, Status, timer, timer2, Difficulty;
 	double RedHadoDisplay, BlueHadoDisplay;
 	Status = 0;//0:メニュー 1:説明画面 2:難易度選択 10:ゲーム画面 11:赤ゴール 12:青ゴール 13:ゲーム開始前 14:ゲームセット
-
+	RedPoint = 0;
+	BluePoint = 0;
 	while (System::Update()) {
 		if (Status == 0) {
 			PolygonH.draw(Palette::Red);
@@ -273,7 +285,8 @@ void Main() {
 			}
 		}
 		else if (Status == 1) {
-			fontRegular40(U"<ルール>\nサッカーやホッケーみたいなゲームです\n相手のゴールにボールを入れれば1点です\n\nマウス操作で動かします\n左クリック長押しで波動をためます\n左クリックを離すと波動を打てます\n\nクリックで戻る").drawAt(400, 300);
+			fontRegular40(U"<ルール>\nサッカーやホッケーみたいなゲームです\n相手のゴールにボールを入れれば1点です\n\nマウス操作で動かします\n左クリック長押しで波動をためます\n左クリックを離すと波動を打てます\n\n").drawAt(400, 300);
+			fontRegular30(U"左クリックで戻る").draw(500, 500);
 			if (MouseL.down()) {
 				Status = 0;
 			}
@@ -282,6 +295,13 @@ void Main() {
 			if (DifficultyEasyBox.intersects(Cursor::Pos())) {
 				DifficultyEasyBox.drawFrame(0, 10, Palette::Yellow);
 				fontHeavy70(U"よわい").drawAt(DifficultyEasyBox.center());
+				if (MouseL.down()) {
+					Difficulty = 0;
+					init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+					timer = 5400;
+					timer2 = 240;
+					Status = 13;
+				}
 			}
 			else {
 				DifficultyEasyBox.drawFrame(0, 5, Palette::Lime);
@@ -290,6 +310,13 @@ void Main() {
 			if (DifficultyMediumBox.intersects(Cursor::Pos())) {
 				DifficultyMediumBox.drawFrame(0, 10, Palette::Yellow);
 				fontHeavy70(U"ふつう").drawAt(DifficultyMediumBox.center());
+				if (MouseL.down()) {
+					Difficulty = 1;
+					init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+					timer = 5400;
+					timer2 = 240;
+					Status = 13;
+				}
 			}
 			else {
 				DifficultyMediumBox.drawFrame(0, 5, Palette::Orange);
@@ -298,34 +325,34 @@ void Main() {
 			if (DifficultyHardBox.intersects(Cursor::Pos())) {
 				DifficultyHardBox.drawFrame(0, 10, Palette::Yellow);
 				fontHeavy70(U"つよい").drawAt(DifficultyHardBox.center());
+				if (MouseL.down()) {
+					Difficulty = 2;
+					init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+					timer = 5400;
+					timer2 = 240;
+					Status = 13;
+				}
 			}
 			else {
 				DifficultyHardBox.drawFrame(0, 5, Palette::Red);
 				fontMedium60(U"つよい").drawAt(DifficultyHardBox.center());
 			}
+			if (KeyT.pressed() && KeyM.pressed() && KeyJ.pressed() && KeyN.pressed()) {
+				Difficulty = 3;
+				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+				timer = 5400;
+				timer2 = 240;
+				Status = 13;
+			}
 		}
 		else if (Status == 10) {
-			RedGoal.draw({ Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255) });
-			BlueGoal.draw({ Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50) });
-			if (KeySpace.down()) {
-				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
-			}
+			RedGoal.draw({Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255)});
+			BlueGoal.draw({Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50)});
+
 			if (MouseR.down()) {
 				White.circle.center = Cursor::Pos();
 			}
-			Circle(Cursor::Pos(), 5).draw(Color(255, 0, 0, 100));
-			for (const Rect& r : FieldTop) {
-				r.draw();
-
-			}for (const Rect& r : FieldBottom) {
-				r.draw();
-			}
-			for (const Rect& r : FieldLeft) {
-				r.draw();
-			}
-			for (const Rect& r : FieldRight) {
-				r.draw();
-			}
+			
 			for (Hado& h : HadoArray) {
 				h.draw();
 				h.hit(Red, Blue, White);
@@ -343,14 +370,29 @@ void Main() {
 			}
 			RedHado = Min(RedHado, 240);
 
+
 			if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2 && Line(Blue.circle.center, White.circle.center + (White.circle.center - Blue.circle.center) * 1000).intersects(Line(100, 175, 100, 275))) {
 				HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
 				BlueHado = 0;
 			}
+			else if (Difficulty == 3 && White.circle.center.distanceFrom(700, 225) < 220) {
+				Vec2 Target(700, 225);
+				if (Blue.circle.center.distanceFrom(Target) > 10) {
+					Blue.velocity += (Target - Blue.circle.center) / (Target - Blue.circle.center).length() * 0.4;
+					BlueHado++;
+				}
+				else if (Blue.circle.center.distanceFrom(White.circle.center) < BlueHado * 2) {
+					HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
+					BlueHado = 0;
+				}
+				else {
+					BlueHado++;
+				}
+			}
 			else {
 				Ball WhitePrediction;
 				Vec2 BlueCenter, BlueVelocity;
-				double DistanceReach, VelocityPrediction;
+				double DistanceReach, VelocityPrediction, Acceleration;
 
 				WhitePrediction = White;
 				BlueCenter = Blue.circle.center;
@@ -358,17 +400,25 @@ void Main() {
 				DistanceReach = 0;
 				VelocityPrediction = 0;
 
+				if (Difficulty == 0) {
+					Acceleration = 0.06;
+				}
+				else if (Difficulty == 1) {
+					Acceleration = 0.2;
+				}
+				else {
+					Acceleration = 0.4;
+				}
 				for (int i = 0; i < 200; i++) {
 					BlueVelocity *= 0.95;
 					BlueCenter += BlueVelocity;
-					VelocityPrediction += 0.4;
+					VelocityPrediction += Acceleration;
 					VelocityPrediction *= 0.95;
 					DistanceReach += VelocityPrediction;
 					WhitePrediction.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
 					Vec2 Target = WhitePrediction.circle.center + (WhitePrediction.circle.center - Vec2(100, 225)) / (WhitePrediction.circle.center - Vec2(100, 225)).length() * 20;
 					if (BlueCenter.distanceFrom(Target) < DistanceReach) {
-						Circle(Target, 2).draw(Palette::Aquamarine);
-						Blue.velocity += (Target - Blue.circle.center) / (Target - Blue.circle.center).length() * 0.4;
+						Blue.velocity += (Target - Blue.circle.center) / (Target - Blue.circle.center).length() * Acceleration;
 						break;
 					}
 				}
@@ -378,6 +428,19 @@ void Main() {
 
 			RedHadoDisplay = (RedHado + RedHadoDisplay * 4) / 5;
 			BlueHadoDisplay = (BlueHado + BlueHadoDisplay * 4) / 5;
+
+			for (const Rect& r : FieldTop) {
+				r.draw();
+			}
+			for (const Rect& r : FieldBottom) {
+				r.draw();
+			}
+			for (const Rect& r : FieldLeft) {
+				r.draw();
+			}
+			for (const Rect& r : FieldRight) {
+				r.draw();
+			}
 
 			Red.cursor();
 			Red.attenuate();
@@ -392,20 +455,276 @@ void Main() {
 			Red.collision(Blue);
 			Red.collision(White);
 			Blue.collision(White);
-			Rect(120, 420, 240, 40).drawFrame(0, 2, Color(255, 200, 200));
+
+			fontMedium100(RedPoint).drawAt(200, 520, Palette::Red);
+			fontMedium100(BluePoint).drawAt(600, 520, Palette::Blue);
+
+			RedHadoMeter.drawFrame(0, 2, Color(255, 200, 200));
 			Rect(120, 420, RedHadoDisplay, 40).draw(Palette::Red);
-			Rect(440, 420, 240, 40).drawFrame(0, 2, Color(200, 200, 255));
+			BlueHadoMeter.drawFrame(0, 2, Color(200, 200, 255));
 			Rect(680 - BlueHadoDisplay, 420, BlueHadoDisplay, 40).draw(Palette::Blue);
+			fontRegular30(U"TIME").drawAt(400, 480);
+			TimerBox.drawFrame(0, 3);
+			fontMedium60(timer / 60).drawAt(TimerBox.center());
+			if (Difficulty == 0) {
+				fontRegular30(U"COM:よわい").draw(600, 0);
+			}
+			else if (Difficulty == 1) {
+				fontRegular30(U"COM:ふつう").draw(600, 0);
+			}
+			else if (Difficulty == 2) {
+				fontRegular30(U"COM:つよい").draw(600, 0);
+			}
+			else if (Difficulty == 3) {
+				fontRegular30(U"COM:さいきょう").draw(550, 0);
+			}
+			timer--;
+			if (timer == 0) {
+				Status = 14;
+			}
+			else if (White.across(RedGoal)) {
+				BluePoint++;
+				RedHado = 0;
+				BlueHado = 0;
+				timer2 = 240;
+				Status = 11;
+			}
+			else if (White.across(BlueGoal)) {
+				RedPoint++;
+				RedHado = 0;
+				BlueHado = 0;
+				timer2 = 240;
+				Status = 12;
+			}
 		}
 		else if (Status == 11) {
+			fontMedium100(RedPoint).drawAt(200, 520, Palette::Red);
+			fontMedium100(BluePoint).drawAt(600, 520, Palette::Blue);
 
+			RedGoal.draw({ Color(255, 255, 0, 255), Color(255, 255, 0, 100), Color(255, 255, 0, 100), Color(255, 255, 0, 255) });
+			BlueGoal.draw({ Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50) });
+
+			for (const Rect& r : FieldTop) {
+				r.draw();
+			}
+			for (const Rect& r : FieldBottom) {
+				r.draw();
+			}
+			for (const Rect& r : FieldLeft) {
+				r.draw();
+			}
+			for (const Rect& r : FieldRight) {
+				r.draw();
+			}
+			Red.draw();
+			Blue.draw();
+			White.draw();			
+			
+			RedHadoDisplay = (RedHado + RedHadoDisplay * 4) / 5;
+			BlueHadoDisplay = (BlueHado + BlueHadoDisplay * 4) / 5;
+
+			RedHadoMeter.drawFrame(0, 2, Color(255, 200, 200));
+			Rect(120, 420, RedHadoDisplay, 40).draw(Palette::Red);
+			BlueHadoMeter.drawFrame(0, 2, Color(200, 200, 255));
+			Rect(680 - BlueHadoDisplay, 420, BlueHadoDisplay, 40).draw(Palette::Blue);
+
+			fontRegular30(U"TIME").drawAt(400, 480);
+			TimerBox.drawFrame(0, 3);
+			fontMedium60(timer / 60).drawAt(TimerBox.center());
+
+			for (Hado& h : HadoArray) {
+				h.draw();
+				h.hit(Red, Blue, White);
+				h.move();
+			}
+			while (!HadoArray.empty() && HadoArray.front().power <= 0) {
+				HadoArray.pop_front();
+			}
+			Red.attenuate();
+			Red.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			Blue.attenuate();
+			Blue.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			White.attenuate();
+			White.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			Red.draw();
+			Blue.draw();
+			White.draw();
+			Red.collision(Blue);
+			Red.collision(White);
+			Blue.collision(White);
+			if (Difficulty == 0) {
+				fontRegular30(U"COM:よわい").draw(600, 0);
+			}
+			else if (Difficulty == 1) {
+				fontRegular30(U"COM:ふつう").draw(600, 0);
+			}
+			else if (Difficulty == 2) {
+				fontRegular30(U"COM:つよい").draw(600, 0);
+			}
+			else if (Difficulty == 3) {
+				fontRegular30(U"COM:さいきょう").draw(550, 0);
+			}
+			fontHeavy255(U"BLUE GOAL!!!").drawAt(timer2 * 15 - 1400, 300, Palette::Yellow);
+			timer2--;
+			if (timer2 == 0) {
+				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+				Status = 10;
+			}
 		}
 		else if (Status == 12) {
+			fontMedium100(RedPoint).drawAt(200, 520, Palette::Red);
+			fontMedium100(BluePoint).drawAt(600, 520, Palette::Blue);
 
+			RedGoal.draw({ Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255) });
+			BlueGoal.draw({ Color(255, 255, 0, 100), Color(255, 255, 0, 255), Color(255, 255, 0, 255), Color(255, 255, 0, 100) });
+
+			for (const Rect& r : FieldTop) {
+				r.draw();
+			}
+			for (const Rect& r : FieldBottom) {
+				r.draw();
+			}
+			for (const Rect& r : FieldLeft) {
+				r.draw();
+			}
+			for (const Rect& r : FieldRight) {
+				r.draw();
+			}
+			Red.draw();
+			Blue.draw();
+			White.draw();
+	
+			RedHadoDisplay = (RedHado + RedHadoDisplay * 4) / 5;
+			BlueHadoDisplay = (BlueHado + BlueHadoDisplay * 4) / 5;
+			
+			RedHadoMeter.drawFrame(0, 2, Color(255, 200, 200));
+			Rect(120, 420, RedHadoDisplay, 40).draw(Palette::Red);
+			BlueHadoMeter.drawFrame(0, 2, Color(200, 200, 255));
+			Rect(680 - BlueHadoDisplay, 420, BlueHadoDisplay, 40).draw(Palette::Blue);
+			
+			fontRegular30(U"TIME").drawAt(400, 480);
+			TimerBox.drawFrame(0, 3);
+			fontMedium60(timer / 60).drawAt(TimerBox.center());
+			
+			for (Hado& h : HadoArray) {
+				h.draw();
+				h.hit(Red, Blue, White);
+				h.move();
+			}
+			while (!HadoArray.empty() && HadoArray.front().power <= 0) {
+				HadoArray.pop_front();
+			}
+			Red.attenuate();
+			Red.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			Blue.attenuate();
+			Blue.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			White.attenuate();
+			White.move(FieldTopInvisible, FieldBottomInvisible, FieldLeftInvisible, FieldRightInvisible);
+			Red.draw();
+			Blue.draw();
+			White.draw();
+			Red.collision(Blue);
+			Red.collision(White);
+			Blue.collision(White);
+			if (Difficulty == 0) {
+				fontRegular30(U"COM:よわい").draw(600, 0);
+			}
+			else if (Difficulty == 1) {
+				fontRegular30(U"COM:ふつう").draw(600, 0);
+			}
+			else if (Difficulty == 2) {
+				fontRegular30(U"COM:つよい").draw(600, 0);
+			}
+			else if (Difficulty == 3) {
+				fontRegular30(U"COM:さいきょう").draw(550, 0);
+			}
+			fontHeavy255(U"RED GOAL!!!").drawAt(timer2 * 15 - 1400, 300, Palette::Yellow);
+			timer2--;
+			if (timer2 == 0) {
+				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+				Status = 10;
+			}
 		}
 		else if (Status == 13) {
+			RedGoal.draw({ Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255) });
+			BlueGoal.draw({ Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50) });
+			for (const Rect& r : FieldTop) {
+				r.draw();
+			}
+			for (const Rect& r : FieldBottom) {
+				r.draw();
+			}
+			for (const Rect& r : FieldLeft) {
+				r.draw();
+			}
+			for (const Rect& r : FieldRight) {
+				r.draw();
+			}
+			Red.draw();
+			Blue.draw();
+			White.draw();
+			RedHadoMeter.drawFrame(0, 2, Color(255, 200, 200));
+			BlueHadoMeter.drawFrame(0, 2, Color(200, 200, 255));
+			fontRegular30(U"TIME").drawAt(400, 480);
+			TimerBox.drawFrame(0, 3);
+			fontMedium60(timer / 60).drawAt(TimerBox.center());
+			if (Difficulty == 0) {
+				fontRegular30(U"COM:よわい").draw(600, 0);
+			}
+			else if (Difficulty == 1) {
+				fontRegular30(U"COM:ふつう").draw(600, 0);
+			}
+			else if (Difficulty == 2) {
+				fontRegular30(U"COM:つよい").draw(600, 0);
+			}
+			else if (Difficulty == 3) {
+				fontRegular30(U"COM:さいきょう").draw(550, 0);
+			}
+			if (timer2 > 180) {
+				Circle(400, 300, 150).drawArc(0, 1_pi * ((timer2 - 180) * 6) / 180, 0, 40, Palette::Yellow);
+				fontMedium200(3).drawAt(400, 300);
+			}
+			else if (timer2 > 120) {
+				Circle(400, 300, 150).drawArc(0, 1_pi * ((timer2 - 120) * 6) / 180, 0, 40, Palette::Orange);
+				fontMedium200(2).drawAt(400, 300);
+			}
+			else if (timer2 > 60) {
+				Circle(400, 300, 150).drawArc(0, 1_pi * ((timer2 - 60) * 6) / 180, 0, 40, Palette::Red);
+				fontMedium200(1).drawAt(400, 300);
+			}
+			else {
+				fontHeavy255(U"START!!").drawAt(timer2 * 160 / 6 - 800, 300, Palette::Yellow);
+			}
+			timer2--;
+			if (timer2 == 0) {
+				Status = 10;
+			}
 		}
 		else if (Status == 14) {
+			Difficulty = 3;
+			Rect(360, 338, 80, 23).draw();
+			Rect(20, 225, 760, 250).drawFrame(0, 8);
+			fontRegular255(RedPoint).drawAt(200, 350, Palette::Red);
+			fontRegular255(BluePoint).drawAt(600, 350, Color(50, 50, 255));
+			if (RedPoint > BluePoint) {
+				fontMedium150(U"YOU WIN!").drawAt(400, 100, Palette::Red);
+				if (Difficulty == 3) {
+					fontRegular20(U"難易度選択画面でT,M,J,Nを同時押しすると...?").drawAt(400, 200);
+				}
+				else if (Difficulty == 4) {
+					fontRegular20(U"「さいきょう」に勝利! Congratulation!!").drawAt(400, 200);
+				}
+			}
+			else if (RedPoint < BluePoint) {
+				fontMedium150(U"YOU LOSE").drawAt(400, 100, Color(50, 50, 255));
+			}
+			else {
+				fontMedium150(U"DRAW").drawAt(400, 100);
+			}
+			fontRegular30(U"エンターキーでおわる").drawAt(400, 520);
+			if (KeyEnter.down()) {
+				return;
+			}
 		}
 	}
 }
