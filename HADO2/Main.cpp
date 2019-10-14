@@ -375,7 +375,7 @@ void Main() {
 				HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
 				BlueHado = 0;
 			}
-			else if (Difficulty == 3 && White.circle.center.distanceFrom(700, 225) < 220) {
+			else if (Difficulty == 3 && White.circle.center.distanceFrom(700, 225) < 200) {
 				Vec2 Target(700, 225);
 				if (Blue.circle.center.distanceFrom(Target) > 10) {
 					Blue.velocity += (Target - Blue.circle.center) / (Target - Blue.circle.center).length() * 0.4;
@@ -708,10 +708,10 @@ void Main() {
 			fontRegular255(BluePoint).drawAt(600, 350, Color(50, 50, 255));
 			if (RedPoint > BluePoint) {
 				fontMedium150(U"YOU WIN!").drawAt(400, 100, Palette::Red);
-				if (Difficulty == 3) {
+				if (Difficulty == 2) {
 					fontRegular20(U"難易度選択画面でT,M,J,Nを同時押しすると...?").drawAt(400, 200);
 				}
-				else if (Difficulty == 4) {
+				else if (Difficulty == 3) {
 					fontRegular20(U"「さいきょう」に勝利! Congratulation!!").drawAt(400, 200);
 				}
 			}
