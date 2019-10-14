@@ -568,6 +568,7 @@ void Main() {
 			timer2--;
 			if (timer2 == 0) {
 				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+				White.circle.x = 380;
 				Status = 10;
 			}
 		}
@@ -642,6 +643,7 @@ void Main() {
 			timer2--;
 			if (timer2 == 0) {
 				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
+				White.circle.x = 420;
 				Status = 10;
 			}
 		}
