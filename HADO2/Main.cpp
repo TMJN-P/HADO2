@@ -349,10 +349,6 @@ void Main() {
 			RedGoal.draw({Color(255, 0, 0, 255), Color(255, 0, 0, 50), Color(255, 0, 0, 50), Color(255, 0, 0, 255)});
 			BlueGoal.draw({Color(0, 0, 255, 50), Color(0, 0, 255, 255), Color(0, 0, 255, 255), Color(0, 0, 255, 50)});
 
-			if (MouseR.down()) {
-				White.circle.center = Cursor::Pos();
-			}
-			
 			for (Hado& h : HadoArray) {
 				h.draw();
 				h.hit(Red, Blue, White);
@@ -723,7 +719,8 @@ void Main() {
 			else {
 				fontMedium150(U"DRAW").drawAt(400, 100);
 			}
-			fontRegular30(U"エンターキーでおわる").drawAt(400, 520);
+			fontRegular30(U"Thank you for playing!").drawAt(400, 550);
+			fontRegular20(U"エンターキーでおわる").drawAt(400, 650);
 			if (KeyEnter.down()) {
 				return;
 			}
