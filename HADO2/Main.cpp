@@ -372,7 +372,11 @@ void Main() {
 				HadoArray.push_back({Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue});
 				BlueHado = 0;
 			}
-			else if (Difficulty <= 1 && BlueHado >= 100) {
+			else if (Difficulty == 0 && BlueHado >= 100) {
+				HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
+				BlueHado = 0;
+			}
+			else if (Difficulty == 1 && BlueHado >= 120) {
 				HadoArray.push_back({ Blue.circle.center, 0, BlueHado, false, true, false, Palette::Blue });
 				BlueHado = 0;
 			}
