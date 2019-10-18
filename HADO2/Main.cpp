@@ -8,13 +8,13 @@ public:
 	Vec2 beforecenter;
 	void draw() {
 		circle.draw(color);
+		Color c = color;
+		Vec2 a(velocity.y, -velocity.x);
+		c.a = 30;
+		Triangle(circle.center - a / a.length() / 2 * circle.r, circle.center + a / a.length() / 2 * circle.r, circle.center - velocity * 10).draw(c);
 	}
 	void hado(Vec2& center, int& power) {
-		double a = atan2(circle.y - center.y, circle.x - center.x);
-		Vec2 b;
-		b.x = cos(a) * 1.1 * power / circle.r;
-		b.y = sin(a) * 1.1 * power / circle.r;
-		velocity += b;
+		velocity += (circle.center - center) / (circle.center - center).length() * 1.1 * power / circle.r;
 	}
 	void attenuate() {
 		velocity *= 0.95;
