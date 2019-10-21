@@ -572,7 +572,7 @@ void Main() {
 			else if (Difficulty == 3) {
 				fontRegular30(U"COM:さいきょう").draw(650, 0);
 			}
-			fontHeavy255(U"BLUE GOAL!!!").drawAt(timer2 * 15 - 1300, 300, Palette::Yellow);
+			fontHeavy255(U"BLUE GOAL!!!").drawAt(timer2 * 15 - 1300, 250, Palette::Yellow);
 			timer2--;
 			if (timer2 == 0) {
 				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
@@ -647,7 +647,7 @@ void Main() {
 			else if (Difficulty == 3) {
 				fontRegular30(U"COM:さいきょう").draw(650, 0);
 			}
-			fontHeavy255(U"RED GOAL!!!").drawAt(timer2 * 15 - 1300, 300, Palette::Yellow);
+			fontHeavy255(U"RED GOAL!!!").drawAt(timer2 * 15 - 1300, 250, Palette::Yellow);
 			timer2--;
 			if (timer2 == 0) {
 				init(Red, Blue, White, RedHado, BlueHado, RedHadoDisplay, BlueHadoDisplay);
@@ -691,19 +691,19 @@ void Main() {
 				fontRegular30(U"COM:さいきょう").draw(650, 0);
 			}
 			if (timer2 > 180) {
-				Circle(500, 300, 150).drawArc(0, 1_pi * ((timer2 - 180) * 6) / 180, 0, 40, Palette::Yellow);
-				fontMedium200(3).drawAt(500, 300);
+				Circle(500, 250, 150).drawArc(0, 1_pi * ((timer2 - 180) * 6) / 180, 0, 40, Palette::Yellow);
+				fontMedium200(3).drawAt(500, 250);
 			}
 			else if (timer2 > 120) {
-				Circle(500, 300, 150).drawArc(0, 1_pi * ((timer2 - 120) * 6) / 180, 0, 40, Palette::Orange);
-				fontMedium200(2).drawAt(500, 300);
+				Circle(500, 250, 150).drawArc(0, 1_pi * ((timer2 - 120) * 6) / 180, 0, 40, Palette::Orange);
+				fontMedium200(2).drawAt(500, 250);
 			}
 			else if (timer2 > 60) {
-				Circle(500, 300, 150).drawArc(0, 1_pi * ((timer2 - 60) * 6) / 180, 0, 40, Palette::Red);
-				fontMedium200(1).drawAt(500, 300);
+				Circle(500, 250, 150).drawArc(0, 1_pi * ((timer2 - 60) * 6) / 180, 0, 40, Palette::Red);
+				fontMedium200(1).drawAt(500, 250);
 			}
 			else {
-				fontHeavy255(U"START!!").drawAt(timer2 * 160 / 6 - 700, 300, Palette::Yellow);
+				fontHeavy255(U"START!!").drawAt(timer2 * 160 / 6 - 700, 250, Palette::Yellow);
 			}
 			timer2--;
 			if (timer2 == 0) {
