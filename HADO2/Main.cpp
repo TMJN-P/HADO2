@@ -214,6 +214,7 @@ void Main() {
 	const Rect DifficultyEasyBox(300, 100, 400, 100);
 	const Rect DifficultyMediumBox(300, 250, 400, 100);
 	const Rect DifficultyHardBox(300, 400, 400, 100);
+	const Rect ReturnBox(50, 500, 140, 70);
 	const Array<Rect> FieldTop {
 		Rect(150, 170, 50, 5), Rect(800, 170, 50, 5), Rect(195, 45, 610, 5)
 	};
@@ -243,6 +244,7 @@ void Main() {
 	const Rect RedHadoMeter(220, 420, 240, 40);
 	const Rect BlueHadoMeter(540, 420, 240, 40);
 	const Rect TimerBox(450, 500, 100, 60);
+	const Triangle RedArrow(350, 190, 18, 60_deg);
 	Array<Hado> HadoArray;
 	PlayerBall Red;
 	Ball Blue, White;
@@ -288,9 +290,16 @@ void Main() {
 		}
 		else if (Status == 1) {
 			fontRegular40(U"<ルール>\nサッカーやホッケーみたいなゲームです\n相手のゴールにボールを入れれば1点です\n\nマウス操作で動かします\n左クリック長押しで波動をためます\n左クリックを離すと波動を打てます\n\n").drawAt(500, 300);
-			fontRegular30(U"左クリックで戻る").draw(600, 500);
-			if (MouseL.down()) {
-				Status = 0;
+			if (ReturnBox.intersects(Cursor::Pos())) {
+				ReturnBox.drawFrame(0, 10);
+				fontRegular40(U"もどる").drawAt(ReturnBox.center());
+				if (MouseL.down()) {
+					Status = 0;
+				}
+			}
+			else {
+				ReturnBox.drawFrame(0, 5);
+				fontRegular30(U"もどる").drawAt(ReturnBox.center());
 			}
 		}
 		else if (Status == 2) {
@@ -345,6 +354,17 @@ void Main() {
 				timer = 5400;
 				timer2 = 240;
 				Status = 13;
+			}
+			if (ReturnBox.intersects(Cursor::Pos())) {
+				ReturnBox.drawFrame(0, 10);
+				fontRegular40(U"もどる").drawAt(ReturnBox.center());
+				if (MouseL.down()) {
+					Status = 0;
+				}
+			}
+			else {
+				ReturnBox.drawFrame(0, 5);
+				fontRegular30(U"もどる").drawAt(ReturnBox.center());
 			}
 		}
 		else if (Status == 10) {
@@ -673,6 +693,11 @@ void Main() {
 			Red.draw();
 			Blue.draw();
 			White.draw();
+
+			fontRegular40(U"You").drawAt(350, 150);
+
+			RedArrow.draw(Palette::Red);
+
 			RedHadoMeter.drawFrame(0, 2, Color(255, 200, 200));
 			BlueHadoMeter.drawFrame(0, 2, Color(200, 200, 255));
 			fontRegular30(U"TIME").drawAt(500, 480);
